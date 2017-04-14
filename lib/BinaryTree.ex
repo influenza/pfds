@@ -9,20 +9,36 @@ defmodule BinaryTree do
   """
 
   defmodule DuplicateValueException do
-    defexception message: "value exists"
+    @moduledoc """
+    This exception is thrown when an existing value is being inserted into a set. By throwing
+    and handling this exception, the unnecessary copying of the search path may be avoided.
+    """
+    defexception message: "The value to be inserted was already present"
   end
 
   defmodule MissingValueException do
-    defexception message: "value exists"
+    @moduledoc """
+    This exception is thrown when a value that is not present in the set is being deleted.
+    By  handling this exception, the unnecessary copying of the search path may be avoided.
+    """
+    defexception message: "The value to be deleted is not present"
   end
 
   defstruct [:left, :item, :right]
 
   @terminal %{left: nil, item: nil, right: nil}
 
+  @doc """
+  True if the set is empty, false otherwise.
+  """
+  def is_empty?(set)
   def is_empty?(@terminal), do: true
   def is_empty?(_), do: false
 
+  @doc """
+  True if 'value' is found within set, false otherwise.
+  """
+  def is_member?(value, set)
   def is_member?(_, @terminal), do: false
   def is_member?(value, %BinaryTree{item: item}=set) when value < item do
     is_member?(value, set.left)
@@ -32,6 +48,11 @@ defmodule BinaryTree do
   end
   def is_member?(_, _), do: true
 
+  @doc """
+  Insert the provided value into the provided set.
+  If the value already exists within the set, no copying is performed and the original set
+  is returned.
+  """
   def insert(value, set) do
     try do
       _insert(value, set)
@@ -63,6 +84,10 @@ defmodule BinaryTree do
   end
   defp _insert(_, _), do: raise DuplicateValueException
 
+  @doc """
+  Merges two sets into a unified view.
+  """
+  def merge(first_set, second_set)
   def merge(@terminal, @terminal), do: @terminal
   def merge(%BinaryTree{}=x, @terminal), do: x
   def merge(@terminal, %BinaryTree{}=y), do: y
@@ -88,6 +113,10 @@ defmodule BinaryTree do
     }
   end
 
+  @doc """
+  Delete the specified value from the provided set.
+  If the value is not found, no copying is performed and the original set is returned.
+  """
   def delete(value, set) do
     try do
       _delete(value, set)
