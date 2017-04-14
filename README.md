@@ -1,19 +1,6 @@
-# Pfds
+# Purely Functional Data Structures
 
-**TODO: Add description**
+This repository is where I collect scratch modules used while working through
+Chris Okasaki's [Purely Functional Data Structures](https://www.amazon.com/Purely-Functional-Structures-Chris-Okasaki/dp/0521663504)
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `pfds` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [{:pfds, "~> 0.1.0"}]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/pfds](https://hexdocs.pm/pfds).
 
