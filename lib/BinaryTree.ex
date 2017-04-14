@@ -167,6 +167,10 @@ defmodule BinaryTree do
     reduce(right, self_accumulated, fun)
   end
 
+  @doc """
+  This function performs some operations to provide an easy way to exercise this
+  module from iex.
+  """
   def go() do
     s = 1..10
         |> Enum.shuffle
