@@ -18,10 +18,10 @@ defmodule BinaryTree do
   def is_member?(_, @terminal), do: false
   def is_member?(value, %BinaryTree{item: value}), do: true
 
-  def member(value, %BinaryTree{item: item}=set) when value < item do
+  def is_member?(value, %BinaryTree{item: item}=set) when value < item do
     member(value, set.left)
   end
-  def member(value, %BinaryTree{item: item}=set) when value > item do
+  def is_member?(value, %BinaryTree{item: item}=set) when value > item do
     member(value, set.right)
   end
 
