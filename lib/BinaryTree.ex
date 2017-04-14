@@ -31,22 +31,22 @@ defmodule BinaryTree do
   @doc """
   True if the set is empty, false otherwise.
   """
-  def is_empty?(set)
-  def is_empty?(@terminal), do: true
-  def is_empty?(_), do: false
+  def empty?(set)
+  def empty?(@terminal), do: true
+  def empty?(_), do: false
 
   @doc """
   True if 'value' is found within set, false otherwise.
   """
-  def is_member?(value, set)
-  def is_member?(_, @terminal), do: false
-  def is_member?(value, %BinaryTree{item: item}=set) when value < item do
-    is_member?(value, set.left)
+  def member?(value, set)
+  def member?(_, @terminal), do: false
+  def member?(value, %BinaryTree{item: item}=set) when value < item do
+    member?(value, set.left)
   end
-  def is_member?(value, %BinaryTree{item: item}=set) when value > item do
-    is_member?(value, set.right)
+  def member?(value, %BinaryTree{item: item}=set) when value > item do
+    member?(value, set.right)
   end
-  def is_member?(_, _), do: true
+  def member?(_, _), do: true
 
   @doc """
   Insert the provided value into the provided set.
@@ -169,5 +169,14 @@ defmodule BinaryTree do
 
     IO.puts "Deleting 3"
     IO.inspect delete(3, s)
+  end
+end
+
+defimpl Enumerable, for: BinaryTree do
+  def reduce(%BinaryTree{}=t, acc, fun) do
+  end
+  def count(%BinaryTree{}=t) do
+  end
+  def member?(%BinaryTree{}=t, x) do
   end
 end
