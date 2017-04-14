@@ -153,6 +153,19 @@ defmodule BinaryTree do
     }
   end
 
+  @doc """
+  Performs an in-order traversal
+  """
+  def reduce(tree, acc, fun)
+  def reduce(@terminal, acc, _), do: acc
+  def reduce(%BinaryTree{left: left, item: item, right: right}, acc, fun) do
+    # process the left
+    left_accumulated = reduce(left, acc, fun)
+    # then myself
+    self_accumulated = fun.(item, left_accumulated)
+    # then the right
+    reduce(right, self_accumulated, fun)
+  end
 
   def go() do
     s = 1..10
@@ -169,14 +182,23 @@ defmodule BinaryTree do
 
     IO.puts "Deleting 3"
     IO.inspect delete(3, s)
+
+    IO.puts "Reducing the tree"
+    Enum.reduce(s, 0, fn (x, _) -> IO.puts x end)
+
+    IO.puts "Count: #{Enum.count(s)}"
   end
 end
 
 defimpl Enumerable, for: BinaryTree do
-  def reduce(%BinaryTree{}=t, acc, fun) do
+  @doc """
+  Performs an in-order traversal
+  """
+  def reduce(tree, acc, fun), do: BinaryTree.reduce(tree, acc, fun)
+  def count(tree) do
+    { :ok, BinaryTree.reduce(tree, 0, fn (_, acc) -> 1 + acc end) }
   end
-  def count(%BinaryTree{}=t) do
-  end
-  def member?(%BinaryTree{}=t, x) do
+  def member?(tree, x) do
+    { :ok, BinaryTree.member?(x, tree) }
   end
 end
