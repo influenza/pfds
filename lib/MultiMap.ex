@@ -187,10 +187,17 @@ defmodule MultiMap do
   Retrieve the entries associated with the specified key, or the empty list if it is not found.
   """
   def get_entries(key, tree)
-  def get_entries(key, @terminal), do: []
-  def get_entries(key, %MultiMap{key: item}=m) when item < key, do: get_entries(key, m.left)
-  def get_entries(key, %MultiMap{key: item}=m) when item > key, do: get_entries(key, m.right)
-  def get_entries(key, %MultiMap{entries: entries}), do: entries
+  def get_entries(_key, @terminal), do: []
+  def get_entries(key, %MultiMap{key: nodekey}=m) when key < nodekey, do: get_entries(key, m.left)
+  def get_entries(key, %MultiMap{key: nodekey}=m) when key > nodekey, do: get_entries(key, m.right)
+  def get_entries(_key, %MultiMap{entries: entries}), do: entries
+
+  def to_list(@terminal), do: []
+  def to_list(%MultiMap{left: left, entries: entries, right: right}) do
+    left_list = to_list(left)
+    right_list = to_list(right)
+    Enum.concat(left_list, [entries | right_list])
+  end
 
   @doc """
   This function performs some operations to provide an easy way to exercise this
@@ -202,18 +209,5 @@ defmodule MultiMap do
         |> Enum.reduce(@terminal, &(MultiMap.insert(&1, 'hey', &2)))
     IO.puts "Built a set from shuffled inputs:"
     IO.inspect s
-  end
-end
-
-defimpl Enumerable, for: MultiMap do
-  @doc """
-  Performs an in-order traversal
-  """
-  def reduce(tree, acc, fun), do: MultiMap.reduce(tree, acc, fun)
-  def count(tree) do
-    { :ok, MultiMap.reduce(tree, 0, fn (_, acc) -> 1 + acc end) }
-  end
-  def member?(tree, x) do
-    { :ok, MultiMap.has_key?(x, tree) }
   end
 end
