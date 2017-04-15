@@ -18,3 +18,9 @@ Or just startup iex and hit you browser
   iex> import PdfsPlug
   iex> Plug.Adapters.Cowboy.http PdfsPlug, []
 ```
+
+Or make an annoying slack bot do your dirty work:
+
+        $ mix -S iex
+        iex(1)> ElixirBot.go "YOUR API TOKEN HERE"
+

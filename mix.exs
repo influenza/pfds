@@ -16,7 +16,7 @@ defmodule Pfds.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :cowboy, :plug]]
+    [extra_applications: [:logger, :cowboy, :plug, :slack]]
   end
 
   # Dependencies can be Hex packages:
@@ -29,6 +29,10 @@ defmodule Pfds.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:cowboy, "~> 1.0.0"}, {:plug, "~> 1.0"}]
+    [
+      {:cowboy, "~> 1.0.0"},
+      {:plug, "~> 1.0"},
+      {:slack, "~> 0.11.0"},
+    ]
   end
 end

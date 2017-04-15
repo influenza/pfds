@@ -45,6 +45,10 @@ defmodule Pfds do
     print_alias(first_name_list, surnames, count)
   end
 
+  def get_alias_enumerable(first_name_list, surnames) do
+     Stream.filter(first_name_list, fn (x) -> surname_filter(surnames, x) end)
+      |> Enum.reduce([], &(name_builder(surnames, &1, &2)))
+  end
 
   def print_alias(first_name_list, surnames, count) do
      Enum.filter(first_name_list, fn (x) -> surname_filter(surnames, x) end)
