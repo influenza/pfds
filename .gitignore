@@ -19,6 +19,9 @@ erl_crash.dump
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
 
+# Per run artifacts
+PdfsPlug
+
 # Vim swap files
 *.swp
 *.swo

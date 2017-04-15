@@ -30,24 +30,36 @@ defmodule Pfds do
     """
   end
 
-  def generate_alias(count, given_names_file, surnames_file) do
-    first_names = File.stream!(given_names_file, [:read, :utf8])
-              |> Stream.map(&String.trim/1)
-              |> Enum.shuffle # Otherwise we get a degenerate tree
-              |> Enum.reduce(%MultiMap{}, &(MultiMap.insert(String.at(&1, 0), &1, &2)))
+  def load_and_map(file) do
+    File.stream!(file, [:read, :utf8])
+    |> Stream.map(&String.trim/1)
+    |> Enum.shuffle # Otherwise we get a degenerate tree
+    |> Enum.reduce(%MultiMap{}, &(MultiMap.insert(String.at(&1, 0), &1, &2)))
+  end
 
-    surnames = File.stream!(surnames_file, [:read, :utf8])
-              |> Stream.map(&String.trim/1)
-              |> Enum.shuffle # Otherwise we get a degenerate tree
-              |> Enum.reduce(%MultiMap{}, &(MultiMap.insert(String.at(&1, 0), &1, &2)))
+  def generate_alias(count, given_names_file, surnames_file) do
+    first_names = load_and_map(given_names_file)
+    surnames = load_and_map(surnames_file)
 
     first_name_list = MultiMap.to_list(first_names)
-    Enum.filter(first_name_list, fn (x) -> surname_filter(surnames, x) end)
+    print_alias(first_name_list, surnames, count)
+  end
+
+
+  def print_alias(first_name_list, surnames, count) do
+     Enum.filter(first_name_list, fn (x) -> surname_filter(surnames, x) end)
       |> Enum.reduce([], &(name_builder(surnames, &1, &2)))
       |> Enum.shuffle
       |> Enum.take(count)
       |> Enum.sort
       |> Enum.each(&IO.puts/1)
+  end
+
+  def pull_alias(first_name_list, surnames, count) do
+     Enum.filter(first_name_list, fn (x) -> surname_filter(surnames, x) end)
+      |> Enum.reduce([], &(name_builder(surnames, &1, &2)))
+      |> Enum.shuffle
+      |> Enum.take(count)
   end
 
   defp name_builder(surnames, first_name_list, accumulator) do
