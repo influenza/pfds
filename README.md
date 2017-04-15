@@ -24,3 +24,14 @@ Or make an annoying slack bot do your dirty work:
         $ mix -S iex
         iex(1)> ElixirBot.go "YOUR API TOKEN HERE"
 
+Or use it as a docker container:
+
+```
+  $ mix deps.get
+  $ MIX_ENV=prod mix escript.build
+  $ docker build -t cheezy .
+  $ docker run --rm -p 8080:8080 cheezy
+  $ docker run -p 8080:8080 cheezy
+  $ curl http://localhost:8080
+```
+

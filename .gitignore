@@ -21,6 +21,7 @@ erl_crash.dump
 
 # Per run artifacts
 PdfsPlug
+/pdfs
 
 # Vim swap files
 *.swp
