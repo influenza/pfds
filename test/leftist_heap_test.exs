@@ -34,4 +34,12 @@ defmodule LeftistHeapTest do
 
     assert LeftistHeap.is_empty? nil
   end
+
+  test "should provide a from_list implementation" do
+    list = [4, 5, 8, 2, 10, 4, 11]
+    heap = LeftistHeap.from_list(list)
+    assert LeftistHeap.find_min(heap) == 2
+    heap = LeftistHeap.delete_min(heap)
+    assert LeftistHeap.find_min(heap) == 4
+  end
 end

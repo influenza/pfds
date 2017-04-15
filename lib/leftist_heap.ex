@@ -92,4 +92,16 @@ defmodule LeftistHeap do
   def delete_min(heap)
   def delete_min(nil), do: raise EmptyHeadException
   def delete_min(%LeftistHeap{left: left, right: right}), do: merge(left, right)
+
+  @doc """
+  Given a list, construct a representative leftist heap.
+  """
+  def from_list(list), do: _from_list(Enum.map(list, &(insert(&1, nil))))
+  defp _from_list([]), do: nil
+  defp _from_list([result]), do: result
+  defp _from_list(list_of_heaps) do
+    merged_heaps = Enum.chunk(list_of_heaps, 2, 2, [nil])
+                   |> Enum.map(fn [l, r] -> merge(l, r) end)
+    _from_list(merged_heaps)
+  end
 end
