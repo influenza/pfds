@@ -10,9 +10,12 @@ defmodule Pfds.Plug do
   def call(conn, _opts) do
     name_list = Pfds.pull_alias(@first_names_list, @surnames, 1)
     name = hd(name_list)
+    resp = ~s({ "response_type": "in_channel", "text": "#{name}", "attachments": [] })
 
     conn
-      |> Plug.Conn.put_resp_content_type("text/plain")
-      |> Plug.Conn.send_resp(200, "#{name}")
+      |> Plug.Conn.put_resp_content_type("application/json")
+      |> Plug.Conn.send_resp(200, resp)
   end
 end
+
+
