@@ -42,4 +42,47 @@ defmodule LeftistHeapTest do
     heap = LeftistHeap.delete_min(heap)
     assert LeftistHeap.find_min(heap) == 4
   end
+
+  @doc """
+      (3)                         (4)
+     /   \    --merged with--    /   \
+   (5)   (6)                   (6)   (5)
+
+          -- should result in --
+            (3)
+           /   \
+         (4)   (5)
+        /   \
+      (5)   (6)
+         \
+         (6)
+  """
+  test "should maintain leftism while merging" do
+    left_heap = %LeftistHeap{
+      left: %LeftistHeap{item: 5},
+      item: 3,
+      rank: 1,
+      right: %LeftistHeap{item: 6}
+    }
+    right_heap = %LeftistHeap{
+      left: %LeftistHeap{item: 6},
+      item: 4,
+      rank: 1,
+      right: %LeftistHeap{item: 5}
+    }
+
+    expected_result = %LeftistHeap{
+      left: %LeftistHeap{
+        left: %LeftistHeap{item: 5, rank: 1, right: %LeftistHeap{item: 6} },
+        item: 4,
+        rank: 1,
+        right: %LeftistHeap{item: 6}
+      },
+      item: 3,
+      rank: 1,
+      right: %LeftistHeap{item: 5}
+    }
+
+    assert expected_result == LeftistHeap.merge(left_heap, right_heap)
+  end
 end
