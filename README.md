@@ -1,3 +1,6 @@
+![travis build status](https://travis-ci.org/influenza/pfds.svg?branch=master)
+
+
 # Purely Functional Data Structures
 
 This repository is where I collect scratch modules used while working through
