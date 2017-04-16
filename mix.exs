@@ -18,7 +18,8 @@ defmodule Pfds.Mixfile do
     # Specify extra applications you'll use from Erlang/Elixir
     [
       extra_applications: [:logger, :cowboy, :plug, :slack],
-      mod: {PfdsApplication, []},
+      # RD 2017-04-15 - This is making `mix test` hang indefinitely
+      #mod: {PfdsApplication, []},
     ]
   end
 
