@@ -3,7 +3,7 @@ defmodule LinkedListTest do
   doctest LinkedList
 
   # Empty
-  test "is empty should do only be true for empty trees" do
+  test "is empty should do only be true for empty lists" do
     not_empty = Enum.reduce([3,4,2], nil, &LinkedList.cons/2)
     assert !LinkedList.is_empty? not_empty
 
