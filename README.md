@@ -13,11 +13,9 @@ Generate some names with:
 
 Or just startup iex and hit you browser
 
-```
-  $ mix -S iex
-  iex> import PdfsPlug
-  iex> Plug.Adapters.Cowboy.http PdfsPlug, []
-```
+        $ mix -S iex
+        iex(1)> import PdfsPlug
+        iex(2)> Plug.Adapters.Cowboy.http PdfsPlug, []
 
 Or make an annoying slack bot do your dirty work:
 
@@ -26,12 +24,10 @@ Or make an annoying slack bot do your dirty work:
 
 Or use it as a docker container:
 
-```
-  $ mix deps.get
-  $ MIX_ENV=prod mix escript.build
-  $ docker build -t cheezy .
-  $ docker run --rm -p 8080:8080 cheezy
-  $ docker run -p 8080:8080 cheezy
-  $ curl http://localhost:8080
-```
+        $ mix deps.get
+        $ MIX_ENV=prod mix escript.build
+        $ docker build -t cheezy .
+        $ docker run --rm -p 8080:8080 cheezy
+        $ docker run -p 8080:8080 cheezy
+        $ curl http://localhost:8080
 
