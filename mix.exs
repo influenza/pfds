@@ -37,6 +37,7 @@ defmodule Pfds.Mixfile do
       {:cowboy, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:slack, "~> 0.11.0"},
+      {:exrm, "~> 1.0.8"}
     ]
   end
 end
