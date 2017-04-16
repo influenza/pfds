@@ -26,20 +26,18 @@ defmodule BinaryTree do
 
   defstruct [:left, :item, :right]
 
-  @terminal %{left: nil, item: nil, right: nil}
-
   @doc """
   True if the set is empty, false otherwise.
   """
-  def empty?(set)
-  def empty?(@terminal), do: true
-  def empty?(_), do: false
+  def is_empty?(set)
+  def is_empty?(nil), do: true
+  def is_empty?(_), do: false
 
   @doc """
   True if 'value' is found within set, false otherwise.
   """
   def member?(value, set)
-  def member?(_, @terminal), do: false
+  def member?(_, nil), do: false
   def member?(value, %BinaryTree{item: item}=set) when value < item do
     member?(value, set.left)
   end
@@ -61,12 +59,8 @@ defmodule BinaryTree do
     end
   end
 
-  defp _insert(value, @terminal) do
-    %BinaryTree{
-      left: @terminal,
-      item: value,
-      right: @terminal
-    }
+  defp _insert(value, nil) do
+    %BinaryTree{ item: value }
   end
   defp _insert(value, %BinaryTree{item: item}=set) when value < item do
     %BinaryTree{
@@ -88,29 +82,17 @@ defmodule BinaryTree do
   Merges two sets into a unified view.
   """
   def merge(first_set, second_set)
-  def merge(@terminal, @terminal), do: @terminal
-  def merge(%BinaryTree{}=x, @terminal), do: x
-  def merge(@terminal, %BinaryTree{}=y), do: y
-  def merge(%BinaryTree{item: xvalue}=x, %BinaryTree{item: yvalue}=y) when xvalue < yvalue do
-    %BinaryTree{
-      left: merge(x, y.left),
-      item: yvalue,
-      right: y.right
-    }
-  end
-  def merge(%BinaryTree{item: xvalue}=x, %BinaryTree{item: yvalue}=y) when xvalue > yvalue do
-    %BinaryTree{
-      left: y.left,
-      item: yvalue,
-      right: merge(x, y.right)
-    }
-  end
-  def merge(%BinaryTree{item: value}=x, %BinaryTree{item: value}=y) do
-    %BinaryTree{
-      left: merge(x.left, y.left),
-      item: value,
-      right: merge(x.right, y.right)
-    }
+  def merge(nil, nil), do: nil
+  def merge(%BinaryTree{}=x, nil), do: x
+  def merge(nil, %BinaryTree{}=y), do: y
+  def merge(x, y) do
+    if count(x) >= count(y) do
+      # Add all elements of y into x
+      BinaryTree.reduce(y, x, &insert/2)
+    else
+      # Add all elements of x into y
+      BinaryTree.reduce(x, y, &insert/2)
+    end
   end
 
   @doc """
@@ -125,39 +107,29 @@ defmodule BinaryTree do
     end
   end
 
-  defp _delete(_, @terminal), do: raise MissingValueException
-  defp _delete(_, %BinaryTree{left: @terminal, right: @terminal}), do: @terminal
-  defp _delete(value, %BinaryTree{left: @terminal, item: value, right: right}), do: right
-  defp _delete(value, %BinaryTree{left: left, item: value, right: @terminal}), do: left
+  defp _delete(_, nil), do: raise MissingValueException
   defp _delete(value, %BinaryTree{item: item}=set) when value < item do
-    %BinaryTree{
-      left: _delete(value, set.left),
-      item: set.item,
-      right: set.right
-    }
+    %BinaryTree{ left: _delete(value, set.left), item: set.item, right: set.right }
   end
 
   defp _delete(value, %BinaryTree{item: item}=set) when value > item do
-    %BinaryTree{
-      left: set.left,
-      item: set.item,
-      right: _delete(value, set.right)
-    }
+    %BinaryTree{ left: set.left, item: set.item, right: _delete(value, set.right) }
   end
 
-  defp _delete(_, %BinaryTree{left: %BinaryTree{}=left, right: %BinaryTree{}=right}) do
-    %BinaryTree{
-      left: merge(left, right.left),
-      item: right.item,
-      right: right.right
-    }
-  end
+  defp _delete(_, tree), do: merge(tree.left, tree.right)
+
+  @doc """
+  Count the number of elements in this tree
+  """
+  def count(tree)
+  def count(tree), do: BinaryTree.reduce tree, 0, fn (_, acc) -> 1 + acc end
+
 
   @doc """
   Performs an in-order traversal
   """
   def reduce(tree, acc, fun)
-  def reduce(@terminal, acc, _), do: acc
+  def reduce(nil, acc, _), do: acc
   def reduce(%BinaryTree{left: left, item: item, right: right}, acc, fun) do
     # process the left
     left_accumulated = reduce(left, acc, fun)
@@ -165,32 +137,6 @@ defmodule BinaryTree do
     self_accumulated = fun.(item, left_accumulated)
     # then the right
     reduce(right, self_accumulated, fun)
-  end
-
-  @doc """
-  This function performs some operations to provide an easy way to exercise this
-  module from iex.
-  """
-  def go() do
-    s = 1..10
-        |> Enum.shuffle
-        |> Enum.reduce(@terminal, &BinaryTree.insert/2)
-    IO.puts "Built a set from 1..10 shuffled:"
-    IO.inspect s
-
-    IO.puts "Inserting another shuffled 1..10, expecting no change:"
-    s2 = 1..10
-      |> Enum.shuffle
-      |> Enum.reduce(s, &BinaryTree.insert/2)
-    IO.inspect s2
-
-    IO.puts "Deleting 3"
-    IO.inspect delete(3, s)
-
-    IO.puts "Reducing the tree"
-    Enum.reduce(s, 0, fn (x, _) -> IO.puts x end)
-
-    IO.puts "Count: #{Enum.count(s)}"
   end
 end
 
