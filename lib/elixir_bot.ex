@@ -24,6 +24,7 @@ defmodule ElixirBot do
       {:ok, state}
     end
   end
+  def handle_event(_, _, state), do: {:ok, state}
 
   defp seems_like_alias_request(text) do
     normalized = String.downcase(text)
@@ -37,7 +38,6 @@ defmodule ElixirBot do
     {:ok, state}
   end
 
-  def handle_event(_, _, state), do: {:ok, state}
 
   def handle_info({:message, text, channel}, slack, state) do
     IO.puts "Sending your message, captain!"

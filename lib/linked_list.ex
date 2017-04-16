@@ -3,34 +3,46 @@ defmodule LinkedList do
   Reference implementation of a linked list.
   """
 
+  defmodule EmptyListException do
+    defexception message: "The list is empty"
+  end
+
   defstruct [:item, :next]
-
-  @terminal_node %{item: nil, next: nil}
-
 
   @doc """
   True if this list does not contain anything
   """
-  def is_empty?(@terminal_node), do: true
+  def is_empty?(list)
+  def is_empty?(nil), do: true
   def is_empty?(_), do: false
 
-  def head(%LinkedList{item: item}) do
-    item
-  end
+  @doc """
+  Retrieve the item at the head of this list. Raises EmptyListException if
+  the list is empty.
+  """
+  def head(list)
+  def head(nil), do: raise EmptyListException
+  def head(%LinkedList{item: item}), do: item
 
-  def tail(%LinkedList{ next: tail}) do
-    tail
-  end
+  @doc """
+  Retrieve tail of this list. Raises EmptyListException if the list is empty.
+  """
+  def tail(list)
+  def tail(nil), do: raise EmptyListException
+  def tail(%LinkedList{next: tail}), do: tail
 
-  def cons(item, list) do
-    %LinkedList {
-      item: item,
-      next: list
-    }
-  end
+  @doc """
+  Construct a new list with a head of the provided item and a tail of the 
+  provided list.
+  """
+  def cons(item, list), do: %LinkedList{item: item, next: list }
 
-  def reverse(@terminal_node), do: @terminal_node #empty list
-  def reverse(%LinkedList{next: @terminal_node, item: _}=end_node) do
+  @doc """
+  Reverse the provided list.
+  """
+  def reverse(list)
+  def reverse(nil), do: nil
+  def reverse(%LinkedList{next: nil, item: _}=end_node) do
     # reverse of single element list is isomorphic
     end_node
   end
@@ -38,54 +50,42 @@ defmodule LinkedList do
     # general case, reversed list is the reversed tail + the head
     concat(
            reverse(tail(node)),
-           cons(head(node), @terminal_node)
+           cons(head(node), nil)
      )
   end
 
-  def concat(@terminal_node, right) do
-    right
-  end
-  def concat(left, right) do
-    cons(head(left), concat(tail(left), right))
-  end
 
-  def update(@terminal_node, _, _), do: @terminal_node
-  def update(%LinkedList{next: next}, 0, value) do
-    cons(value, next)
-  end
+  @doc """
+  Return a list containing the elements of the left list followed by the right.
+  """
+  def concat(left, right)
+  def concat(nil, right), do: right
+  def concat(left, right), do: cons(head(left), concat(tail(left), right))
 
+  @doc """
+  Build a list resembling the provided list, excepting the item at index `index` is
+  instead the provided value.
+
+  For instance:
+    update(['a', 'b', 'c'], 1, 'x') -> ['a', 'x', 'c']
+  """
+  def update(list, index, value)
+  def update(nil, _, _), do: nil
+  def update(%LinkedList{next: next}, 0, value), do: cons(value, next)
   def update(list, index, item) do
     cons(
-         head(list), update(tail(list), index - 1, item)
+         head(list),
+         update(tail(list), index - 1, item)
      )
   end
 
-  def suffixes(@terminal_node), do: cons(@terminal_node, @terminal_node)
-  def suffixes(list) do
-    cons(list, suffixes(tail(list)))
-  end
+  @doc """
+  Build a list of all suffixes of the provided list.
 
-  def go() do
-    l = Enum.reduce(1..10, %LinkedList{}, fn (x, acc) -> LinkedList.cons(x, acc) end)
-    IO.puts "Head of this thing is #{head(l)}"
-    IO.puts "Tail of this thing:"
-    IO.inspect tail(l)
-    IO.puts "Cons a snake:"
-    IO.inspect cons("a snake", l)
-
-    IO.puts "Reversed is: "
-    IO.inspect reverse(l)
-
-    IO.puts "Updating index 3 to 'third'"
-    IO.inspect update(l, 3, "third")
-
-    IO.puts "Reversing and updating index 3 to 'third'"
-    IO.inspect update(reverse(l), 3, "third")
-
-    IO.puts "Suffixes of [1,2,3,4] list:"
-    IO.inspect suffixes(Enum.reduce(
-                        4..1,
-                        @terminal_node,
-                        &LinkedList.cons/2))
-  end
+  For instance:
+    suffixes([1, 2, 3, 4]) -> [[1, 2, 3, 4], [2, 3, 4], [3, 4], [4]]
+  """
+  def suffixes(list)
+  def suffixes(nil), do: nil
+  def suffixes(list), do: cons(list, suffixes(tail(list)))
 end
