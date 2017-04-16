@@ -4,6 +4,13 @@ defmodule MultiMap do
   Keys may only appear once, values are assumed to be lists. Keys must be orderable.
   """
 
+  defmodule Entry do
+    @moduledoc """
+    Provides a structure used with reduction functions.
+    """
+    defstruct [:key, :value]
+  end
+
   defmodule DuplicateValueException do
     @moduledoc """
     This exception is thrown when an existing key is being inserted into the mmap. By throwing
@@ -170,15 +177,17 @@ defmodule MultiMap do
   end
 
   @doc """
-  Performs an in-order traversal
+  Performs an in-order traversal. Provided reduction function will be passed
+  a MultiMap.Entry struct containing a key and a value with the list of entries.
   """
   def reduce(tree, acc, fun)
   def reduce(@terminal, acc, _), do: acc
-  def reduce(%MultiMap{left: left, key: key, right: right}, acc, fun) do
+  def reduce(%MultiMap{left: left, key: key, entries: entries, right: right}, acc, fun) do
     # process the left
     left_accumulated = reduce(left, acc, fun)
     # then myself
-    self_accumulated = fun.(key, left_accumulated)
+    my_entry = %MultiMap.Entry{key: key, value: entries}
+    self_accumulated = fun.(my_entry, left_accumulated)
     # then the right
     reduce(right, self_accumulated, fun)
   end
@@ -192,22 +201,13 @@ defmodule MultiMap do
   def get_entries(key, %MultiMap{key: nodekey}=m) when key > nodekey, do: get_entries(key, m.right)
   def get_entries(_key, %MultiMap{entries: entries}), do: entries
 
+  @doc """
+  Convert the multimap into a list of entry lists
+  """
   def to_list(@terminal), do: []
   def to_list(%MultiMap{left: left, entries: entries, right: right}) do
     left_list = to_list(left)
     right_list = to_list(right)
     Enum.concat(left_list, [entries | right_list])
-  end
-
-  @doc """
-  This function performs some operations to provide an easy way to exercise this
-  module from iex.
-  """
-  def go() do
-    s = ['a', 'b', 'c', 'd', 'e']
-        |> Enum.shuffle
-        |> Enum.reduce(@terminal, &(MultiMap.insert(&1, 'hey', &2)))
-    IO.puts "Built a set from shuffled inputs:"
-    IO.inspect s
   end
 end
