@@ -21,7 +21,11 @@ defmodule Pfds.Plug do
   get "/" do
     name_list = Pfds.pull_alias(@first_names_list, @surnames, 1)
     name = hd(name_list)
-    resp = ~s({ "response_type": "in_channel", "text": "#{name}", "attachments": [] })
+    message = cond do
+      name == "colby chavez" -> ":100: :thumbsup: !! Colby Chavez !! :thumbsup: :100:"
+      true -> name
+    end
+    resp = ~s({ "response_type": "in_channel", "text": "#{message}", "attachments": [] })
 
     conn
       |> put_resp_content_type("application/json")
