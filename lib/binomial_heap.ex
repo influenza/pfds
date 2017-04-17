@@ -90,6 +90,16 @@ defmodule BinomialHeap do
 
   @doc """
   Return a new heap without the minimum element of the provided heap.
+
+  The children of the removed min must be reversed before being merged back into the
+  queue. The reason for this is the way the queue is sorted in increasing rank order to
+  support inserts, but the Tree's children are sorted in decreasing rank order for efficient
+  merging. Explained better (by Okasaki): The trees in binomial queues are
+    maintained in increasing order of rank to support the insert operation
+    efficiently. On the other hand, the children of binomial trees are
+    maintained in decreasing order of rank to support the link operation
+    efficiently. This discrepancy compels us to reverse the children of the
+    deleted node during a deleteMin.
   """
   def delete_min(heap)
   def delete_min(nil), do: raise NilHeapException
@@ -99,6 +109,8 @@ defmodule BinomialHeap do
     merge(Enum.reverse(c), rest)
   end
 
+  # Given a heap (an array of binomial trees), retrieve the minimum
+  # and return it along with the remainder of the heap
   defp remove_min_tree([t]), do: {t, []}
   defp remove_min_tree([%Tree{item: item}=head | tail]) do
     {%Tree{item: min}=t1, rest} = remove_min_tree(tail)
