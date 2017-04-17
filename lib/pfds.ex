@@ -73,6 +73,8 @@ defmodule Pfds do
     List.flatten([names | accumulator])
   end
 
+  defp surname_filter(_surnames, nil), do: false
+  defp surname_filter(_surnames, []), do: false
   defp surname_filter(surnames, first_name_list) do
     first_letter = String.first(Enum.at(first_name_list, 0))
     MultiMap.has_key?(first_letter, surnames)

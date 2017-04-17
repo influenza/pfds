@@ -4,6 +4,13 @@ defmodule MultiMap do
   Keys may only appear once, values are assumed to be lists. Keys must be orderable.
   """
 
+  defmodule Entry do
+    @moduledoc """
+    Provides a structure used with reduction functions.
+    """
+    defstruct [:key, :value]
+  end
+
   defmodule DuplicateValueException do
     @moduledoc """
     This exception is thrown when an existing key is being inserted into the mmap. By throwing
@@ -22,20 +29,18 @@ defmodule MultiMap do
 
   defstruct [:left, :key, :entries, :right]
 
-  @terminal %{left: nil, key: nil, entries: nil, right: nil}
-
   @doc """
   True if the mmap is empty, false otherwise.
   """
   def empty?(mmap)
-  def empty?(@terminal), do: true
+  def empty?(nil), do: true
   def empty?(_), do: false
 
   @doc """
   True if 'key' is found within set, false otherwise.
   """
   def has_key?(key, set)
-  def has_key?(_, @terminal), do: false
+  def has_key?(_, nil), do: false
   def has_key?(key, %MultiMap{key: item}=set) when key < item do
     has_key?(key, set.left)
   end
@@ -56,13 +61,8 @@ defmodule MultiMap do
     end
   end
 
-  defp _insert(key, value, @terminal) do
-    %MultiMap{
-      left: @terminal,
-      key: key,
-      entries: [value],
-      right: @terminal
-    }
+  defp _insert(key, value, nil) do
+    %MultiMap{ key: key, entries: [value] }
   end
   defp _insert(key, value, %MultiMap{key: item}=set) when key < item do
     %MultiMap{
@@ -98,9 +98,9 @@ defmodule MultiMap do
   merged as first.entries ++ second.entries.
   """
   def merge(first, second)
-  def merge(@terminal, @terminal), do: @terminal
-  def merge(%MultiMap{}=x, @terminal), do: x
-  def merge(@terminal, %MultiMap{}=y), do: y
+  def merge(nil, nil), do: nil
+  def merge(%MultiMap{}=x, nil), do: x
+  def merge(nil, %MultiMap{}=y), do: y
   def merge(%MultiMap{key: xvalue}=x, %MultiMap{key: yvalue}=y) when xvalue < yvalue do
     %MultiMap{
       left: merge(x, y.left),
@@ -138,10 +138,10 @@ defmodule MultiMap do
     end
   end
 
-  defp _delete_key(_, @terminal), do: raise MissingValueException
-  defp _delete_key(_, %MultiMap{left: @terminal, right: @terminal}), do: @terminal
-  defp _delete_key(key, %MultiMap{left: @terminal, key: key, right: right}), do: right
-  defp _delete_key(key, %MultiMap{left: left, key: key, right: @terminal}), do: left
+  defp _delete_key(_, nil), do: raise MissingValueException
+  defp _delete_key(_, %MultiMap{left: nil, right: nil}), do: nil
+  defp _delete_key(key, %MultiMap{left: nil, key: key, right: right}), do: right
+  defp _delete_key(key, %MultiMap{left: left, key: key, right: nil}), do: left
   defp _delete_key(key, %MultiMap{key: item}=set) when key < item do
     %MultiMap{
       left: _delete_key(key, set.left),
@@ -170,15 +170,17 @@ defmodule MultiMap do
   end
 
   @doc """
-  Performs an in-order traversal
+  Performs an in-order traversal. Provided reduction function will be passed
+  a MultiMap.Entry struct containing a key and a value with the list of entries.
   """
   def reduce(tree, acc, fun)
-  def reduce(@terminal, acc, _), do: acc
-  def reduce(%MultiMap{left: left, key: key, right: right}, acc, fun) do
+  def reduce(nil, acc, _), do: acc
+  def reduce(%MultiMap{left: left, key: key, entries: entries, right: right}, acc, fun) do
     # process the left
     left_accumulated = reduce(left, acc, fun)
     # then myself
-    self_accumulated = fun.(key, left_accumulated)
+    my_entry = %MultiMap.Entry{key: key, value: entries}
+    self_accumulated = fun.(my_entry, left_accumulated)
     # then the right
     reduce(right, self_accumulated, fun)
   end
@@ -187,27 +189,18 @@ defmodule MultiMap do
   Retrieve the entries associated with the specified key, or the empty list if it is not found.
   """
   def get_entries(key, tree)
-  def get_entries(_key, @terminal), do: []
+  def get_entries(_key, nil), do: []
   def get_entries(key, %MultiMap{key: nodekey}=m) when key < nodekey, do: get_entries(key, m.left)
   def get_entries(key, %MultiMap{key: nodekey}=m) when key > nodekey, do: get_entries(key, m.right)
   def get_entries(_key, %MultiMap{entries: entries}), do: entries
 
-  def to_list(@terminal), do: []
+  @doc """
+  Convert the multimap into a list of entry lists
+  """
+  def to_list(nil), do: []
   def to_list(%MultiMap{left: left, entries: entries, right: right}) do
     left_list = to_list(left)
     right_list = to_list(right)
     Enum.concat(left_list, [entries | right_list])
-  end
-
-  @doc """
-  This function performs some operations to provide an easy way to exercise this
-  module from iex.
-  """
-  def go() do
-    s = ['a', 'b', 'c', 'd', 'e']
-        |> Enum.shuffle
-        |> Enum.reduce(@terminal, &(MultiMap.insert(&1, 'hey', &2)))
-    IO.puts "Built a set from shuffled inputs:"
-    IO.inspect s
   end
 end
