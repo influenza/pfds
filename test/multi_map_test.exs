@@ -55,7 +55,7 @@ defmodule MultiMapTestCase do
   test "provide an in-order reduction function" do
     mmap = [1,3,4,2] |> Enum.reduce(nil, &(MultiMap.insert(&1, &1, &2)))
 
-    reducer = fn (%MultiMap.Entry{key: k, value: v}, xs) -> [ v | xs] end
+    reducer = fn (%MultiMap.Entry{value: v}, xs) -> [ v | xs] end
     reduced_list = MultiMap.reduce(mmap, [], reducer)
 
     assert [[4], [3], [2], [1]] == reduced_list
