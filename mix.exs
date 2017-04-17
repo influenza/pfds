@@ -7,7 +7,7 @@ defmodule Pfds.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     escript: [main_module: PfdsApplication],
+     escript: [main_module: Pfds],
      deps: deps()]
   end
 
@@ -15,9 +15,8 @@ defmodule Pfds.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    # Specify extra applications you'll use from Erlang/Elixir
     [
-      extra_applications: [:logger, :cowboy, :plug, :slack],
+      applications: [:stdlib, :kernel, :logger, :cowboy, :plug, :slack]
     ]
   end
 

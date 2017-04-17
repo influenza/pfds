@@ -2,8 +2,6 @@ defmodule PfdsApplication do
   use Application
   require Logger
 
-  def main(args), do: args
-
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
