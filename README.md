@@ -16,7 +16,7 @@ Generate some names with:
 
 Or just startup iex and hit you browser
 
-        $ mix -S iex
+        $ iex -S mix
         iex(1)> import PfdsPlug
         iex(2)> Plug.Adapters.Cowboy.http PfdsPlug, []
 
