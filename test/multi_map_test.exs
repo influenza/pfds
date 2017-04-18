@@ -18,6 +18,10 @@ defmodule MultiMapTestCase do
     assert !MultiMap.has_key? "skeleton", mmap
   end
 
+  test "should check empty maps for keys" do
+    assert !MultiMap.has_key? "not present", nil
+  end
+
   test "should allow value accumulation as a proper multi-map" do
     mmap = MultiMap.insert("hi", "first", %MultiMap{})
     assert ["first"] == MultiMap.get_entries("hi", mmap)
