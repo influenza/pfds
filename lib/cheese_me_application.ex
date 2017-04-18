@@ -1,4 +1,4 @@
-defmodule PfdsApplication do
+defmodule CheeseMeApplication do
   use Application
   require Logger
 
@@ -6,7 +6,7 @@ defmodule PfdsApplication do
     import Supervisor.Spec, warn: false
 
     children = [
-      Plug.Adapters.Cowboy.child_spec(:http, Pfds.Plug, [], port: 8080)
+      Plug.Adapters.Cowboy.child_spec(:http, CheeseMe.Plug, [], port: 8080)
     ]
 
     Logger.info "Started application"

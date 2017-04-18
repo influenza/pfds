@@ -12,13 +12,13 @@ Chris Okasaki's [Purely Functional Data Structures](https://www.amazon.com/Purel
 Generate some names with:
 
         mix escript.build
-        ./pfds --firstnames /path/to/firstnames.txt --surnames /path/to/surnames.txt --count 100
+        ./cheese_me --firstnames /path/to/firstnames.txt --surnames /path/to/surnames.txt --count 100
 
 Or just startup iex and hit you browser
 
         $ iex -S mix
-        iex(1)> import Pfds.Plug
-        iex(2)> Plug.Adapters.Cowboy.http Pfds.Plug, []
+        iex(1)> import CheeseMe.Plug
+        iex(2)> Plug.Adapters.Cowboy.http CheeseMe.Plug, []
 
 Or make an annoying slack bot do your dirty work:
 
