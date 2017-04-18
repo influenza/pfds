@@ -17,8 +17,8 @@ Generate some names with:
 Or just startup iex and hit you browser
 
         $ iex -S mix
-        iex(1)> import PfdsPlug
-        iex(2)> Plug.Adapters.Cowboy.http PfdsPlug, []
+        iex(1)> import Pfds.Plug
+        iex(2)> Plug.Adapters.Cowboy.http Pfds.Plug, []
 
 Or make an annoying slack bot do your dirty work:
 
