@@ -19,7 +19,6 @@ defmodule CheeseMe.Plug do
   end
 
   get "/" do
-    IO.inspect @name_gen
     name = @aliases |> Enum.shuffle |> Enum.take(1) |> Enum.join
     message = cond do
       name == "colby chavez" -> ":100: :thumbsup: !! Colby Chavez !! :thumbsup: :100:"
