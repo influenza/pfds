@@ -5,10 +5,9 @@ defmodule ElixirBot do
   """
   use Slack
 
-  @first_names_list MultiMap.to_list(Pfds.load_and_map("./data/cheeses.txt"))
-  @surnames Pfds.load_and_map("./data/surnames.txt")
+  @name_gen Application.fetch_env!(:cheese_me, :name_generator)
 
-  @alias_list Enum.to_list(Pfds.get_alias_enumerable(@first_names_list, @surnames))
+  @aliases @name_gen.get_enumerable("./data/cheeses.txt", "./data/surnames.txt")
 
   @alias_request_regex ~r/.*(give|gimme|have).*cchavez.*(alias|name).*/
 
@@ -32,7 +31,7 @@ defmodule ElixirBot do
   end
 
   defp send_alias_message(channel, state, slack) do
-    selected_alias = @alias_list |> Enum.shuffle |> Enum.take(1) |> Enum.join
+    selected_alias = @aliases |> Enum.shuffle |> Enum.take(1) |> Enum.join
     msg_text = "How about \"#{selected_alias}\"?"
     send_message(msg_text, channel, slack)
     {:ok, state}

@@ -1,26 +1,26 @@
 
-defmodule Pfds.Plug do
+defmodule CheeseMe.Plug do
   use Plug.Router
-  require Pfds
+  require CheeseMe
   require Logger
 
   plug Plug.Logger
   plug :match
   plug :dispatch
 
-  @first_names_list MultiMap.to_list(Pfds.load_and_map("./data/cheeses.txt"))
+  @name_gen Application.fetch_env!(:cheese_me, :name_generator)
 
-  @surnames Pfds.load_and_map("./data/surnames.txt")
+  @aliases @name_gen.get_enumerable("./data/cheeses.txt", "./data/surnames.txt")
 
   def init(options), do: options
 
   def start_link do
-    {:ok, _} = Plug.Adapters.Cowboy.http Pfds.Plug, []
+    {:ok, _} = Plug.Adapters.Cowboy.http CheeseMe.Plug, []
   end
 
   get "/" do
-    name_list = Pfds.pull_alias(@first_names_list, @surnames, 1)
-    name = hd(name_list)
+    IO.inspect @name_gen
+    name = @aliases |> Enum.shuffle |> Enum.take(1) |> Enum.join
     message = cond do
       name == "colby chavez" -> ":100: :thumbsup: !! Colby Chavez !! :thumbsup: :100:"
       true -> name

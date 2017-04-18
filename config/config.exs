@@ -10,11 +10,12 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :pfds, key: :value
+#     config :cheese_me, key: :value
+config :cheese_me, name_generator: CheeseMeNameGenerator
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:pfds, :key)
+#     Application.get_env(:cheese_me, :key)
 #
 # Or configure a 3rd-party app:
 #
@@ -28,3 +29,5 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+import_config "#{Mix.env}.exs"
