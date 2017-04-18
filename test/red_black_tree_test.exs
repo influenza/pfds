@@ -20,7 +20,10 @@ defmodule RedBlackTreeTest do
     missing |> Enum.each(fn (entry) ->
       assert !RedBlackTree.member? entry, tree
     end)
+  end
 
+  test "should not locate keys in an empty tree" do
+    assert !RedBlackTree.member? "not here", nil
   end
 
   # balancing

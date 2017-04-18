@@ -41,13 +41,24 @@ defmodule MultiMap do
   """
   def has_key?(key, set)
   def has_key?(_, nil), do: false
-  def has_key?(key, %MultiMap{key: item}=set) when key < item do
-    has_key?(key, set.left)
+  def has_key?(key, set) do
+    find_with_candidate(key, set, nil)
   end
-  def has_key?(key, %MultiMap{key: item}=set) when key > item do
-    has_key?(key, set.right)
+
+  defp find_with_candidate(key, %MultiMap{left: l, key: item}, candidate) when key < item do
+    if l != nil do
+      find_with_candidate(key, l, candidate)
+    else
+      key == candidate
+    end
   end
-  def has_key?(_, _), do: true
+  defp find_with_candidate(key, %MultiMap{key: item, right: r}, _) do
+    if r != nil do
+      find_with_candidate(key, r, item)
+    else
+      key == item
+    end
+  end
 
   @doc """
   Insert value at key in the provided map.

@@ -38,13 +38,22 @@ defmodule BinaryTree do
   """
   def member?(value, set)
   def member?(_, nil), do: false
-  def member?(value, %BinaryTree{item: item}=set) when value < item do
-    member?(value, set.left)
+  def member?(value, set), do: find_with_candidate(value, set, nil)
+
+  defp find_with_candidate(value, %BinaryTree{left: l, item: key}, candidate) when value < key do
+    if l != nil do
+      find_with_candidate(value, l, candidate)
+    else
+      value == candidate
+    end
   end
-  def member?(value, %BinaryTree{item: item}=set) when value > item do
-    member?(value, set.right)
+  defp find_with_candidate(value, %BinaryTree{right: r, item: key}, _) do
+    if r != nil do
+      find_with_candidate(value, r, key)
+    else
+      value == key
+    end
   end
-  def member?(_, _), do: true
 
   @doc """
   Insert the provided value into the provided set.
