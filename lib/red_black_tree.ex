@@ -44,15 +44,25 @@ defmodule RedBlackTree do
   @doc """
   True if 'value' is found within tree, false otherwise.
   """
-  def member?(value, tree)
-  def member?(_, nil), do: false
-  def member?(value, %RedBlackTree{item: item}=tree) when value < item do
-    member?(value, tree.left)
+  def member?(value, tree) do
+    find_with_candidate(value, tree, nil)
   end
-  def member?(value, %RedBlackTree{item: item}=tree) when value > item do
-    member?(value, tree.right)
+
+  defp find_with_candidate(value, %RedBlackTree{item: key, left: left}, candidate) when value < key do
+    if left != nil do
+      find_with_candidate(value, left, candidate)
+    else
+      value == candidate
+    end
   end
-  def member?(_, _), do: true
+
+  defp find_with_candidate(value, %RedBlackTree{item: key, right: right}, _) do
+    if right != nil do
+      find_with_candidate(value, right, key)
+    else
+      key == value
+    end
+  end
 
   @doc """
   Insert the provided value into the provided tree.
