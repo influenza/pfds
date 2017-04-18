@@ -50,6 +50,8 @@ defmodule RedBlackTree do
   @doc """
   True if 'value' is found within tree, false otherwise.
   """
+  def member?(value, tree)
+  def member?(_, nil), do: false
   def member?(value, tree) do
     find_with_candidate(value, tree, nil)
   end
