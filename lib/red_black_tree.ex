@@ -11,6 +11,12 @@ defmodule RedBlackTree do
   1. No red node has a red child
   2. Every path from the root to an empty node has the same number
     of black nodes
+
+  This implementation has two optimizations in place:
+    1. Membership tests perform a single comparison and cache a candidate.
+      This allows for d+1 rather than 2d comparisons.
+    2. On insertion, only nodes on the search path are color-checked for
+      balancing.
   """
 
   defmodule DuplicateValueException do
@@ -71,7 +77,7 @@ defmodule RedBlackTree do
   """
   def insert(value, tree) do
     try do
-      %RedBlackTree{left: a, item: x, right: b}  = ins(value, tree)
+      { _, %RedBlackTree{left: a, item: x, right: b} }  = ins(value, tree)
       # Return a black-colored node with the same contents
       %RedBlackTree{color: @black, left: a, item: x, right: b }
     rescue
@@ -79,17 +85,27 @@ defmodule RedBlackTree do
     end
   end
 
-  defp ins(x, nil), do: %RedBlackTree{color: @red, item: x}
-  defp ins(x, %RedBlackTree{color: c, left: a, item: y, right: b}) do
-    cond do
-      x < y -> balance(c, ins(x, a), y, b)
-      x > y -> balance(c, a, y, ins(x, b))
-      true -> raise DuplicateValueException
+  defp ins(x, %RedBlackTree{color: c, left: a, item: y, right: b}) when x < y do
+    new_tree = case ins(x, a) do
+      { :neither, new_left } -> %RedBlackTree{color: c, left: new_left, item: y, right: b}
+      { :left, new_left } -> llbalance(c, new_left, y, b)
+      { :right, new_left } -> lrbalance(c, new_left, y, b)
     end
+    {:left, new_tree}
   end
+  defp ins(x, %RedBlackTree{color: c, left: a, item: y, right: b}) when x > y do
+    new_tree = case ins(x, b) do
+      { :neither, new_right } -> %RedBlackTree{color: c, left: a, item: y, right: new_right}
+      { :left, new_right } -> rlbalance(c, a, y, new_right)
+      { :right, new_right } -> rrbalance(c, a, y, new_right)
+    end
+    {:right, new_tree}
+  end
+  defp ins(x, nil), do: {:neither, %RedBlackTree{color: @red, item: x}}
+  defp ins(_, _), do: raise DuplicateValueException
 
   # Any black node with two red children is replaced with a red node with two black children
-  defp balance(@black, %{color: @red, left: %{color: @red, left: a, item: x, right: b}, item: y, right: c}, z, d) do
+  defp llbalance(@black, %{color: @red, left: %{color: @red, left: a, item: x, right: b}, item: y, right: c}, z, d) do
     # Case 1
     %RedBlackTree{
       left: %RedBlackTree{color: @black, left: a, item: x, right: b},
@@ -97,7 +113,9 @@ defmodule RedBlackTree do
       right: %RedBlackTree{color: @black, left: c, item: z, right: d}
     }
   end
-  defp balance(@black, %{color: @red, left: a, item: x, right: %{color: @red, left: b, item: y, right: c}}, z, d) do
+  defp llbalance(color, left, item, right), do: %RedBlackTree{color: color, left: left, item: item, right: right}
+
+  defp lrbalance(@black, %{color: @red, left: a, item: x, right: %{color: @red, left: b, item: y, right: c}}, z, d) do
     # Case 2
     %RedBlackTree{
       left: %RedBlackTree{color: @black, left: a, item: x, right: b},
@@ -105,7 +123,9 @@ defmodule RedBlackTree do
       right: %RedBlackTree{color: @black, left: c, item: z, right: d}
     }
   end
-  defp balance(@black, a, x, %{color: @red, left: %{color: @red, left: b, item: y, right: c}, item: z, right: d}) do
+  defp lrbalance(color, left, item, right), do: %RedBlackTree{color: color, left: left, item: item, right: right}
+
+  defp rlbalance(@black, a, x, %{color: @red, left: %{color: @red, left: b, item: y, right: c}, item: z, right: d}) do
     # Case 3
     %RedBlackTree{
       left: %RedBlackTree{color: @black, left: a, item: x, right: b},
@@ -113,7 +133,9 @@ defmodule RedBlackTree do
       right: %RedBlackTree{color: @black, left: c, item: z, right: d}
     }
   end
-  defp balance(@black, a, x, %{color: @red, left: b, item: y, right: %{color: @red, left: c, item: z, right: d}}) do
+  defp rlbalance(color, left, item, right), do: %RedBlackTree{color: color, left: left, item: item, right: right}
+
+  defp rrbalance(@black, a, x, %{color: @red, left: b, item: y, right: %{color: @red, left: c, item: z, right: d}}) do
     # Case 4
     %RedBlackTree{
       left: %RedBlackTree{color: @black, left: a, item: x, right: b},
@@ -121,7 +143,7 @@ defmodule RedBlackTree do
       right: %RedBlackTree{color: @black, left: c, item: z, right: d}
     }
   end
-  defp balance(color, left, item, right), do: %RedBlackTree{color: color, left: left, item: item, right: right}
+  defp rrbalance(color, left, item, right), do: %RedBlackTree{color: color, left: left, item: item, right: right}
 
   @doc """
   Count the number of elements in this tree
