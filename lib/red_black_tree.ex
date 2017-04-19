@@ -52,9 +52,7 @@ defmodule RedBlackTree do
   """
   def member?(value, tree)
   def member?(_, nil), do: false
-  def member?(value, tree) do
-    find_with_candidate(value, tree, nil)
-  end
+  def member?(value, tree), do: find_with_candidate(value, tree, nil)
 
   defp find_with_candidate(value, %RedBlackTree{item: key, left: left}, candidate) when value < key do
     if left != nil do
@@ -79,9 +77,9 @@ defmodule RedBlackTree do
   """
   def insert(value, tree) do
     try do
-      { _, %RedBlackTree{left: a, item: x, right: b} }  = ins(value, tree)
+      { _, %RedBlackTree{}=new_tree }  = ins(value, tree)
       # Return a black-colored node with the same contents
-      %RedBlackTree{color: @black, left: a, item: x, right: b }
+      %RedBlackTree{new_tree | color: @black}
     rescue
       DuplicateValueException -> tree
     end
