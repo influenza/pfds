@@ -16,7 +16,7 @@ defmodule CheeseMe.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:stdlib, :kernel, :logger, :cowboy, :plug, :slack]
+      applications: [:stdlib, :kernel, :logger, :cowboy, :plug, :slack, :timex]
     ]
   end
 
@@ -32,9 +32,10 @@ defmodule CheeseMe.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0.0"},
+      {:distillery, "~> 1.0"},
       {:plug, "~> 1.0"},
       {:slack, "~> 0.11.0"},
-      {:distillery, "~> 1.0"}
+      {:timex, "~> 3.0"}
     ]
   end
 end
