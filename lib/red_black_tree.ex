@@ -172,7 +172,7 @@ defmodule RedBlackTree do
     reduce(right, self_accumulated, fun)
   end
 
-  def _do_enumerable_reduce(nil, acc, _, _), do: acc
+  def _do_enumerable_reduce(nil, acc, _, next), do: next.(acc)
   def _do_enumerable_reduce(
     %RedBlackTree{left: left, item: item, right: right},
     acc, fun, next
@@ -196,7 +196,7 @@ defmodule RedBlackTree do
         (new_acc) -> _do_enumerable_reduce(right, new_acc, fun, wrapper_fn)
       end}
       # recurse right, then apply `next`
-      x -> next.(_do_enumerable_reduce(right, x, fun, next))
+      x -> next.(_do_enumerable_reduce(right, x, fun, wrapper_fn))
     end
   end
 
@@ -208,7 +208,6 @@ defmodule RedBlackTree do
         {:suspend, acc} -> {:suspended, acc, &{:done, elem(&1, 1)}}
         {:halt, acc}    -> {:halted, acc}
         {:cont, acc}    -> {:done, acc}
-        {:done, acc}    -> {:done, acc}
       end
       RedBlackTree._do_enumerable_reduce(rbtree, acc, fun, end_of_traversal_fn)
     end
