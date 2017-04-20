@@ -79,4 +79,23 @@ defmodule RedBlackTreeTest do
     Enum.zip(sizes, Enum.map(sizes, size_to_tree))
       |> Enum.each(fn {size, tree} -> assert size == Enum.count(tree) end)
   end
+
+  test "should support halting enumeration" do
+    tree = 1..100 |> Enum.reduce(nil, &RedBlackTree.insert/2)
+    expected = 1 + 2 + 3
+    actual = Enum.reduce_while(tree, 0, fn i, acc ->
+      if i < 4, do: {:cont, acc + i}, else: {:halt, acc} end)
+    assert expected == actual
+  end
+
+  test "should support suspending" do
+    number_tree = [1,2,3] |> Enum.reduce(nil, &RedBlackTree.insert/2)
+    # Stream zipping should require suspend to work
+    result = Stream.zip([number_tree, Stream.cycle(["a", "b"])]) |> Enum.take(3)
+    assert result == [
+      {1, "a"},
+      {2, "b"},
+      {3, "a"},
+    ]
+  end
 end

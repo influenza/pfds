@@ -180,23 +180,27 @@ defmodule RedBlackTree do
     # Pass along a simple wrapper function, calling it with the result
     # of the right tree traversal.
     wrapper_fn = fn
-        {:suspend, acc} -> {:suspended, acc, next}
         {:halt, acc}    -> {:halted, acc}
         {:cont, acc}    -> {:cont, acc}
+        {:suspended, acc, cont} -> {:suspended, acc, cont}
     end
 
     # recurse left
-    {_, left_acc } = _do_enumerable_reduce(left, acc, fun, wrapper_fn)
-
-    # Process this node
-    case fun.(item, left_acc) do
-      { :halt, acc } -> { :halted, acc }
-      # recurse right in a continuation
-      { :suspend, acc } -> { :suspended, acc, fn
-        (new_acc) -> _do_enumerable_reduce(right, new_acc, fun, wrapper_fn)
-      end}
-      # recurse right, then apply `next`
-      x -> next.(_do_enumerable_reduce(right, x, fun, wrapper_fn))
+    left_side = _do_enumerable_reduce(left, acc, fun, wrapper_fn)
+    if elem(left_side, 0) == :suspended do
+      left_side
+    else
+      # Process this node
+      {_ , left_acc} = left_side
+      case fun.(item, left_acc) do
+        { :halt, acc } -> { :halted, acc }
+        # recurse right in a continuation
+        { :suspend, acc } -> { :suspended, acc, fn
+          (new_acc) -> _do_enumerable_reduce(right, new_acc, fun, wrapper_fn)
+        end}
+        # recurse right, then apply `next`
+        x -> next.(_do_enumerable_reduce(right, x, fun, wrapper_fn))
+      end
     end
   end
 
