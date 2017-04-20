@@ -171,4 +171,49 @@ defmodule RedBlackTree do
     # then the right
     reduce(right, self_accumulated, fun)
   end
+
+  def _do_enumerable_reduce(nil, acc, _, _), do: acc
+  def _do_enumerable_reduce(
+    %RedBlackTree{left: left, item: item, right: right},
+    acc, fun, next
+  ) do
+    # Pass along a simple wrapper function, calling it with the result
+    # of the right tree traversal.
+    wrapper_fn = fn
+        {:suspend, acc} -> {:suspended, acc, next}
+        {:halt, acc}    -> {:halted, acc}
+        {:cont, acc}    -> {:cont, acc}
+    end
+
+    # recurse left
+    {_, left_acc } = _do_enumerable_reduce(left, acc, fun, wrapper_fn)
+
+    # Process this node
+    case fun.(item, left_acc) do
+      { :halt, acc } -> { :halted, acc }
+      # recurse right in a continuation
+      { :suspend, acc } -> { :suspended, acc, fn
+        (new_acc) -> _do_enumerable_reduce(right, new_acc, fun, wrapper_fn)
+      end}
+      # recurse right, then apply `next`
+      x -> next.(_do_enumerable_reduce(right, x, fun, next))
+    end
+  end
+
+  defimpl Enumerable do
+    def reduce(rbtree, acc, fun) do
+      # This function will be wrapped with each recursion. The intent is that it serves
+      # as a sentinel on the stack to track when enumeration is complete
+      end_of_traversal_fn =  fn
+        {:suspend, acc} -> {:suspended, acc, &{:done, elem(&1, 1)}}
+        {:halt, acc}    -> {:halted, acc}
+        {:cont, acc}    -> {:done, acc}
+        {:done, acc}    -> {:done, acc}
+      end
+      RedBlackTree._do_enumerable_reduce(rbtree, acc, fun, end_of_traversal_fn)
+    end
+
+    def member?(rbtree, val), do: {:ok, RedBlackTree.member?(val, rbtree)}
+    def count(rbtree), do: {:ok, RedBlackTree.count(rbtree)}
+  end
 end

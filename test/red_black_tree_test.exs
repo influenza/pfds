@@ -40,4 +40,25 @@ defmodule RedBlackTreeTest do
     tree = 0..16 |> Enum.reduce(nil, &RedBlackTree.insert/2)
     assert 5 == RedBlackTree.depth(tree)
   end
+
+  # Enumerable protocol
+  test "should be a proper enumerable" do
+    cons = &([&1 | &2])
+    range = 1..10
+
+    tree = range |> Enum.reduce(nil, &RedBlackTree.insert/2)
+    from_tree = tree |> Enum.reduce([], cons)
+    from_range = range |> Enum.reduce([], cons)
+
+    assert from_tree == from_range
+  end
+
+  test "should be mappable via enumerable" do
+    range = 1..10
+    mapped_from_tree = range
+                       |> Enum.reduce(nil, &RedBlackTree.insert/2)
+                       |> Enum.map(&Integer.to_string/1)
+    mapped_from_range = range |> Enum.map(&Integer.to_string/1)
+    assert mapped_from_tree == mapped_from_range
+  end
 end
