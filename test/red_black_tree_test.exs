@@ -41,7 +41,10 @@ defmodule RedBlackTreeTest do
     assert 5 == RedBlackTree.depth(tree)
   end
 
-  # Enumerable protocol
+  #######################
+  # Enumerable protocol #
+  #######################
+
   test "should be a proper enumerable" do
     cons = &([&1 | &2])
     range = 1..10
@@ -60,5 +63,20 @@ defmodule RedBlackTreeTest do
                        |> Enum.map(&Integer.to_string/1)
     mapped_from_range = range |> Enum.map(&Integer.to_string/1)
     assert mapped_from_tree == mapped_from_range
+  end
+
+  test "should support the 'in' keyword" do
+    range = 1..10
+    outside_range = 11..20
+    tree = range |> Enum.reduce(nil, &RedBlackTree.insert/2)
+    range |> Enum.each(fn (item) -> assert item in tree end)
+    outside_range |> Enum.each(fn (item) -> assert !(item in tree) end)
+  end
+
+  test "should support length checking" do
+    sizes = 1..10
+    size_to_tree = fn (size) -> Enum.reduce(1..size, nil, &RedBlackTree.insert/2) end
+    Enum.zip(sizes, Enum.map(sizes, size_to_tree))
+      |> Enum.each(fn {size, tree} -> assert size == Enum.count(tree) end)
   end
 end
